@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener{
     lateinit var rView: RecyclerView
 
     // change this api with new crudcrud.com's api for another 24hr use
-    val base_url = "https://crudcrud.com/api/90ae4d9b90fc4aaab224a7710539c91b/"
+    val base_url = "https://crudcrud.com/api/338ecf5cbdf446eeb44f2e2cc8d9ce4d/"
 
 
 
@@ -92,10 +92,14 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener{
                     }
 
                     // setting no data textview
-                    if(studentList.isEmpty()){
+                    val noDataTv = findViewById<TextView>(R.id.nodata_tv)
+                    if(studentList.size == 0){
                         rView.visibility = View.GONE
-                        val noDataTv = findViewById<TextView>(R.id.nodata_tv)
-                            noDataTv.visibility = View.VISIBLE
+
+                        noDataTv.visibility = View.VISIBLE
+                    }else{
+                        rView.visibility = View.VISIBLE
+                        noDataTv.visibility = View.GONE
                     }
 
                     rvAdapter.notifyDataSetChanged()
