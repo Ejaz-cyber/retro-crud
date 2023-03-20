@@ -1,4 +1,4 @@
-package models
+package com.example.crud.models
 
 data class StudentModelPost(
     val name: String?,
