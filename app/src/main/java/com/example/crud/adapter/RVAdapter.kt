@@ -3,6 +3,8 @@ package com.example.crud.adapter
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.crud.databinding.UserRowBinding
 import com.example.crud.models.StudentModel
@@ -11,7 +13,7 @@ class RVAdapter(
     var studentList : List<StudentModel>,
     val listener : OnItemsClickListener
 ) :
-    RecyclerView.Adapter<RVAdapter.ViewHolder>() {
+    ListAdapter<StudentModel, RVAdapter.ViewHolder>(COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -21,11 +23,11 @@ class RVAdapter(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int  = studentList.size
+    //override fun getItemCount(): Int  = studentList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder.binding.model = studentList[position]
+        holder.binding.model = getItem(position)
         //holder.binding.executePendingBindings()
 
         holder.binding.editBtn.setOnClickListener{
@@ -45,8 +47,28 @@ class RVAdapter(
     }
 
     fun updateList(newList: List<StudentModel>) {
+//        studentList = newList
+//        notifyDataSetChanged()
+
+
+        val diffResult = DiffUtil.calculateDiff(DiffutilAdapter(studentList as MutableList<StudentModel>, newList as MutableList<StudentModel>))
         studentList = newList
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
+
+    companion object {
+        val COMPARATOR = object : DiffUtil.ItemCallback<StudentModel>() {
+
+            override fun areItemsTheSame(oldItem: StudentModel, newItem: StudentModel): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: StudentModel, newItem: StudentModel): Boolean {
+                return oldItem == newItem
+            }
+
+        }
+    }
+
 
 }
