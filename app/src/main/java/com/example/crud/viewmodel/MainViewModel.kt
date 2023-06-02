@@ -27,16 +27,7 @@ class MainViewModel(private val repository: MainRepository) : ViewModel() {
     }
 
     fun fetchStudents() : Flow<UIState<List<StudentModel>?>> {
-//        viewModelScope.launch {
-           return repository.getStudents().flowOn(Dispatchers.IO)
-//                .catch { error ->
-//                    Log.e("FETCH", error.message.toString())
-//                }
-//                .collect {
-//                    studentList.postValue(it)
-//                }
-
-//        }
+        return repository.getStudents().flowOn(Dispatchers.IO)
     }
 
     suspend fun deleteStudent(id: String, check: Check2) {

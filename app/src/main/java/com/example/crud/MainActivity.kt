@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,9 +25,15 @@ import com.example.crud.statelistener.UIState
 import com.example.crud.viewmodel.MainViewModel
 import com.example.crud.viewmodel.MainViewModelFactory
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+//@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
+
+//    @Inject
+//    lateinit var baseUrl : String
 
     lateinit var rvAdapter: RVAdapter
     lateinit var binding: ActivityMainBinding
@@ -41,6 +48,8 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+//        Log.e("TAG", "baseUrl = ${baseUrl}")
 
         binding.usersRv.layoutManager = LinearLayoutManager(this@MainActivity)
 
@@ -62,7 +71,7 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
                     val data: Intent? = result.data
                     if (data?.getBooleanExtra("REFRESH_PAGE", false) == true) {
                         Log.e("Main", "fetching")
-                        mViewModel.fetchStudents()
+                        setDeta()
                     }
                 }
             }
@@ -81,23 +90,23 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
 //            rvAdapter.submitList(it)
 //        })
 
-        val progressBar = CircularProgressIndicator(this@MainActivity)
 
         lifecycleScope.launch {
             mViewModel.fetchStudents().collect {
                 when (it) {
                     is UIState.Loading -> {
-                        progressBar.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is UIState.Error -> {
-                        progressBar.visibility = View.GONE
+                        binding.progressBar.visibility = View.GONE
                     }
                     is UIState.Success -> {
+
                         rvAdapter = RVAdapter(it.data, this@MainActivity)
                         binding.usersRv.adapter = rvAdapter
                         rvAdapter.submitList(it.data)
-
-                        progressBar.visibility = View.GONE
+                        mViewModel.studentList.postValue(it.data)
+                        binding.progressBar.visibility = View.GONE
                     }
                 }
             }
@@ -147,7 +156,7 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
                 mViewModel.studentList.value?.get(position)?.id.toString(),
                 object : Check2 {
                     override fun onSuccess(response: Unit?) {
-                        mViewModel.fetchStudents()
+                        setDeta()
                         Toast.makeText(this@MainActivity, "student deleted", Toast.LENGTH_SHORT)
                             .show()
 
