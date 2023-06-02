@@ -1,31 +1,43 @@
 package com.example.crud.viewmodel
 
-import androidx.lifecycle.LiveData
+import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.crud.Check
 import com.example.crud.Check2
 import com.example.crud.models.StudentModel
-import com.example.crud.models.StudentModelPost
-import com.example.crud.repository.MainRepo
+import com.example.crud.repository.MainRepository
+import com.example.crud.statelistener.UIState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val repository: MainRepo) : ViewModel() {
+class MainViewModel(private val repository: MainRepository) : ViewModel() {
+
+    val studentList: MutableLiveData<List<StudentModel>> = MutableLiveData(emptyList())
+//        get() = repository.students.value
+
 
     init {
+//        studentList.postValue(fetchStudents())
         fetchStudents()
     }
 
-    fun fetchStudents() {
-        viewModelScope.launch {
-            repository.getStudents()
-        }
+    fun fetchStudents() : Flow<UIState<List<StudentModel>?>> {
+//        viewModelScope.launch {
+           return repository.getStudents().flowOn(Dispatchers.IO)
+//                .catch { error ->
+//                    Log.e("FETCH", error.message.toString())
+//                }
+//                .collect {
+//                    studentList.postValue(it)
+//                }
+
+//        }
     }
-
-    val studentList: LiveData<List<StudentModel>>
-        get() = repository.students
-
 
     suspend fun deleteStudent(id: String, check: Check2) {
         viewModelScope.launch {
@@ -35,8 +47,5 @@ class MainViewModel(private val repository: MainRepo) : ViewModel() {
             job.join()
             repository.getStudents()
         }
-
-
     }
-
 }

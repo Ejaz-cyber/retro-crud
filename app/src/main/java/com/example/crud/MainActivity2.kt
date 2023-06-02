@@ -3,16 +3,13 @@ package com.example.crud
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.crud.databinding.ActivityMain2Binding
 import com.example.crud.models.StudentModelPost
-import com.example.crud.repository.MainRepo
+import com.example.crud.repository.MainRepository
 import com.example.crud.retrofit.ApiInterface
 import com.example.crud.retrofit.RetrofitObj
-import com.example.crud.viewmodel.MainViewModel
-import com.example.crud.viewmodel.MainViewModelFactory
 import com.example.crud.viewmodel.ViewModel2
 import com.example.crud.viewmodel.ViewModel2Factory
 import java.util.*
@@ -22,7 +19,7 @@ class MainActivity2 : AppCompatActivity() {
     lateinit var binding: ActivityMain2Binding
 
     private lateinit var api: ApiInterface
-    private lateinit var repo: MainRepo
+    private lateinit var repo: MainRepository
     private lateinit var viewModel2: ViewModel2
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +30,7 @@ class MainActivity2 : AppCompatActivity() {
         binding.title.text = "Enter New Student Details"
 
         api = RetrofitObj.getRetrofitInstance().create(ApiInterface::class.java)
-        repo = MainRepo(api)
+        repo = MainRepository(api)
         viewModel2 = ViewModelProvider(this, ViewModel2Factory(repo)).get(ViewModel2::class.java)
 
         if (intent.hasExtra("name")) {

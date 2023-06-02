@@ -10,16 +10,17 @@ import com.example.crud.databinding.UserRowBinding
 import com.example.crud.models.StudentModel
 
 class RVAdapter(
-    var studentList : List<StudentModel>,
-    val listener : OnItemsClickListener
+    var studentList: List<StudentModel>?,
+    val listener: OnItemsClickListener
 ) :
     ListAdapter<StudentModel, RVAdapter.ViewHolder>(COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
-        val binding : UserRowBinding = UserRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding: UserRowBinding =
+            UserRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
-        Log.e("rv", studentList.size.toString())
+        Log.e("rv", studentList?.size.toString())
         return ViewHolder(binding)
     }
 
@@ -30,18 +31,18 @@ class RVAdapter(
         holder.binding.model = getItem(position)
         //holder.binding.executePendingBindings()
 
-        holder.binding.editBtn.setOnClickListener{
+        holder.binding.editBtn.setOnClickListener {
             listener.onEditBtnClick(position)
         }
 
-        holder.binding.deleteBtn.setOnClickListener{
+        holder.binding.deleteBtn.setOnClickListener {
             listener.onDeleteBtnClick(position)
         }
     }
 
     class ViewHolder(val binding: UserRowBinding) : RecyclerView.ViewHolder(binding.root)
 
-    interface OnItemsClickListener{
+    interface OnItemsClickListener {
         fun onEditBtnClick(position: Int)
         fun onDeleteBtnClick(position: Int)
     }
@@ -51,7 +52,12 @@ class RVAdapter(
 //        notifyDataSetChanged()
 
 
-        val diffResult = DiffUtil.calculateDiff(DiffutilAdapter(studentList as MutableList<StudentModel>, newList as MutableList<StudentModel>))
+        val diffResult = DiffUtil.calculateDiff(
+            DiffutilAdapter(
+                studentList as MutableList<StudentModel>,
+                newList as MutableList<StudentModel>
+            )
+        )
         studentList = newList
         diffResult.dispatchUpdatesTo(this)
     }
