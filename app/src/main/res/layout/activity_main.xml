@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="No Data Found \nTry adding some"
+        android:text="No Data\nTry adding some"
         android:textSize="33sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/users_rv"

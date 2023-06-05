@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.crud.databinding.ActivityMain2Binding
 import com.example.crud.models.StudentModelPost
@@ -12,15 +13,18 @@ import com.example.crud.retrofit.ApiInterface
 import com.example.crud.retrofit.RetrofitObj
 import com.example.crud.viewmodel.ViewModel2
 import com.example.crud.viewmodel.ViewModel2Factory
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity2 : AppCompatActivity() {
 
     lateinit var binding: ActivityMain2Binding
 
-    private lateinit var api: ApiInterface
-    private lateinit var repo: MainRepository
-    private lateinit var viewModel2: ViewModel2
+    @Inject
+    lateinit var api: ApiInterface
+    private val mViewModel: ViewModel2 by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,10 +32,6 @@ class MainActivity2 : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.title.text = "Enter New Student Details"
-
-        api = RetrofitObj.getRetrofitInstance().create(ApiInterface::class.java)
-        repo = MainRepository(api)
-        viewModel2 = ViewModelProvider(this, ViewModel2Factory(repo)).get(ViewModel2::class.java)
 
         if (intent.hasExtra("name")) {
             val name = intent.getStringExtra("name")
@@ -73,7 +73,7 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     private fun editUser(stud: StudentModelPost, id: String) {
-        viewModel2.updateStudent(id, stud, object : Check2 {
+        mViewModel.updateStudent(id, stud, object : Check2 {
             override fun onSuccess(response: Unit?) {
                 Toast.makeText(this@MainActivity2, "student updated", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this@MainActivity2, MainActivity::class.java)
@@ -92,7 +92,7 @@ class MainActivity2 : AppCompatActivity() {
     }
 
     private fun addNewUser(newStudent: StudentModelPost) {
-        viewModel2.postStudent(newStudent, object : Check {
+        mViewModel.postStudent(newStudent, object : Check {
             override fun onSuccess(response: Objects?) {
 
                 Toast.makeText(this@MainActivity2, "student added", Toast.LENGTH_SHORT).show()

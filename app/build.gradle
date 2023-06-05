@@ -64,11 +64,13 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
 
     // ViewModel
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.6.0"
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation 'androidx.activity:activity-ktx:1.7.2'
+
 
     // LiveData
-    implementation "androidx.lifecycle:lifecycle-livedata:2.6.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.0"
 
     //dagger
     def hilt_version = "2.44"

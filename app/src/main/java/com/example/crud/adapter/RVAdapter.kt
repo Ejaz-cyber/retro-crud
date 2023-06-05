@@ -8,8 +8,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.crud.databinding.UserRowBinding
 import com.example.crud.models.StudentModel
+import javax.inject.Inject
 
-class RVAdapter(
+class RVAdapter @Inject constructor(
     var studentList: List<StudentModel>?,
     val listener: OnItemsClickListener
 ) :
@@ -72,7 +73,6 @@ class RVAdapter(
             override fun areContentsTheSame(oldItem: StudentModel, newItem: StudentModel): Boolean {
                 return oldItem == newItem
             }
-
         }
     }
 

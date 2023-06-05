@@ -1,3 +1,8 @@
 package com.example.crud.utils
 
-const val BASEURL = "https://crudcrud.com/api/7a7591ea682b4568a71280e56850d0b2/"
+/**
+ * change APIKEY value with your api key from crudcrud.com
+ */
+
+const val APIKEY = "78db755bff1d4126a2d429f97e322eec"
+const val BASEURL = "https://crudcrud.com/api/$APIKEY/"

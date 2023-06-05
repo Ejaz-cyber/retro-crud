@@ -8,70 +8,59 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.crud.adapter.RVAdapter
 import com.example.crud.databinding.ActivityMainBinding
-import com.example.crud.repository.MainRepository
+import com.example.crud.models.StudentModel
 import com.example.crud.retrofit.ApiInterface
-import com.example.crud.retrofit.RetrofitObj
 import com.example.crud.statelistener.UIState
 import com.example.crud.viewmodel.MainViewModel
-import com.example.crud.viewmodel.MainViewModelFactory
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//@AndroidEntryPoint
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
 
-//    @Inject
-//    lateinit var baseUrl : String
+    @Inject
+    lateinit var api: ApiInterface
 
-    lateinit var rvAdapter: RVAdapter
+    private lateinit var rvAdapter: RVAdapter
     lateinit var binding: ActivityMainBinding
-    private lateinit var api: ApiInterface
-    private lateinit var repository: MainRepository
-    private lateinit var mViewModel: MainViewModel
-
-    //    private var studentList: List<StudentModel>? = null
-    lateinit var resultLauncher: ActivityResultLauncher<Intent>
+    private val mViewModel: MainViewModel by viewModels()
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-//        Log.e("TAG", "baseUrl = ${baseUrl}")
-
         binding.usersRv.layoutManager = LinearLayoutManager(this@MainActivity)
 
-        api = RetrofitObj.getRetrofitInstance().create(ApiInterface::class.java)
-        repository = MainRepository(api)
-        mViewModel =
-            ViewModelProvider(this, MainViewModelFactory(repository))[MainViewModel::class.java]
-//        studentList = mViewModel.studentList.value
+        /* no need for all these coz we are using Hilt now
+            api = RetrofitObj.getRetrofitInstance().create(ApiInterface::class.java)
+            repository = MainRepository(api)
+            mViewModel = ViewModelProvider(this, MainViewModelFactory(repository))[MainViewModel::class.java]
+        */
         setUI()
-
     }
 
     private fun setUI() {
-        setDeta()
+        if (mViewModel.studentList.value?.isEmpty() == true) setData()
+        else putData(mViewModel.studentList.value)
 
-        resultLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
                     val data: Intent? = result.data
                     if (data?.getBooleanExtra("REFRESH_PAGE", false) == true) {
                         Log.e("Main", "fetching")
-                        setDeta()
+                        setData()
                     }
                 }
             }
@@ -81,16 +70,7 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
         }
     }
 
-    private fun setDeta() {
-//        mViewModel.studentList.observe(this, Observer {
-//            studentList = it
-//            rvAdapter = RVAdapter(it, this)
-//            binding.usersRv.adapter = rvAdapter
-//            Log.e("Main", "onCreate: studentlist = ${it.size}")
-//            rvAdapter.submitList(it)
-//        })
-
-
+    private fun setData() {
         lifecycleScope.launch {
             mViewModel.fetchStudents().collect {
                 when (it) {
@@ -98,21 +78,31 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
                         binding.progressBar.visibility = View.VISIBLE
                     }
                     is UIState.Error -> {
-                        binding.progressBar.visibility = View.GONE
+                        binding.nodataTv.text = "Error getting data"
+                        binding.progressBar.visibility = View.VISIBLE
                     }
                     is UIState.Success -> {
-
-                        rvAdapter = RVAdapter(it.data, this@MainActivity)
-                        binding.usersRv.adapter = rvAdapter
-                        rvAdapter.submitList(it.data)
                         mViewModel.studentList.postValue(it.data)
                         binding.progressBar.visibility = View.GONE
+                        putData(it.data!!)
                     }
                 }
             }
         }
     }
 
+    private fun putData(list: List<StudentModel>?) {
+        if(list!!.isEmpty()){
+            binding.nodataTv.visibility = View.VISIBLE
+
+        }else {
+            binding.nodataTv.visibility = View.GONE
+        }
+
+        rvAdapter = RVAdapter(list, this@MainActivity)
+        binding.usersRv.adapter = rvAdapter
+        rvAdapter.submitList(list)
+    }
 
     override fun onEditBtnClick(position: Int) {
         val stud = mViewModel.studentList.value?.get(position)
@@ -140,9 +130,9 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
             }
         })
 
-        build.setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, i ->
+        build.setNegativeButton("No") { _, _ ->
             alertDialog?.cancel()
-        })
+        }
 
         alertDialog = build.create()
         alertDialog?.setCancelable(false)
@@ -156,7 +146,7 @@ class MainActivity : AppCompatActivity(), RVAdapter.OnItemsClickListener {
                 mViewModel.studentList.value?.get(position)?.id.toString(),
                 object : Check2 {
                     override fun onSuccess(response: Unit?) {
-                        setDeta()
+                        setData()
                         Toast.makeText(this@MainActivity, "student deleted", Toast.LENGTH_SHORT)
                             .show()
 

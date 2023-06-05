@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class MainRepository(private val apiInterface: ApiInterface) {
+class MainRepository @Inject constructor(private val apiInterface: ApiInterface) {
     fun getStudents() = flow {
         Log.e("Repository", "api called - GET")
 

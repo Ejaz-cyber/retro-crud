@@ -2,10 +2,9 @@ package com.example.crud.retrofit
 
 import com.example.crud.models.StudentModel
 import com.example.crud.models.StudentModelPost
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.*
-import java.util.Objects
+import java.util.*
 
 interface ApiInterface {
     @GET("students/")
